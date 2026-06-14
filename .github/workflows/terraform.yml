@@ -47,7 +47,7 @@ jobs:
             -var="student_name=JibrelAbubakrJibrel" \
             -var="docker_image=jibreel3932/cloudscale-app:latest" \
             -out=tfplan
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: tfplan
           path: tfplan
