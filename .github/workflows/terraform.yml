@@ -40,10 +40,6 @@ jobs:
       - run: tofu validate
       - run: |
           tofu plan \
-            -var="subscription_id=${{ secrets.ARM_SUBSCRIPTION_ID }}" \
-            -var="client_id=${{ secrets.ARM_CLIENT_ID }}" \
-            -var="client_secret=${{ secrets.ARM_CLIENT_SECRET }}" \
-            -var="tenant_id=${{ secrets.ARM_TENANT_ID }}" \
             -var="student_name=JibrelAbubakrJibrel" \
             -var="docker_image=jibreel3932/cloudscale-app:latest" \
             -out=tfplan
@@ -82,10 +78,6 @@ jobs:
           name: tfplan
       - run: |
           tofu apply \
-            -var="subscription_id=${{ secrets.ARM_SUBSCRIPTION_ID }}" \
-            -var="client_id=${{ secrets.ARM_CLIENT_ID }}" \
-            -var="client_secret=${{ secrets.ARM_CLIENT_SECRET }}" \
-            -var="tenant_id=${{ secrets.ARM_TENANT_ID }}" \
             -var="student_name=JibrelAbubakrJibrel" \
             -var="docker_image=jibreel3932/cloudscale-app:latest" \
             -auto-approve
