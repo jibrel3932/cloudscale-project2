@@ -26,23 +26,17 @@ jobs:
     name: Terraform Plan
     runs-on: ubuntu-latest
     needs: docker-build-push
-    env:
-      ARM_CLIENT_ID:       ${{ secrets.ARM_CLIENT_ID }}
-      ARM_CLIENT_SECRET:   ${{ secrets.ARM_CLIENT_SECRET }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      ARM_TENANT_ID:       ${{ secrets.ARM_TENANT_ID }}
     steps:
       - uses: actions/checkout@v3
+      - uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.ARM_CLIENT_ID }}","clientSecret":"${{ secrets.ARM_CLIENT_SECRET }}","subscriptionId":"${{ secrets.ARM_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.ARM_TENANT_ID }}"}'
       - uses: opentofu/setup-opentofu@v1
         with:
           tofu_version: "1.9.0"
       - run: tofu init
       - run: tofu validate
-      - run: |
-          tofu plan \
-            -var="student_name=JibrelAbubakrJibrel" \
-            -var="docker_image=jibreel3932/cloudscale-app:latest" \
-            -out=tfplan
+      - run: tofu plan -var="student_name=JibrelAbubakrJibrel" -var="docker_image=jibreel3932/cloudscale-app:latest" -out=tfplan
       - uses: actions/upload-artifact@v4
         with:
           name: tfplan
@@ -55,20 +49,18 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment: production
     steps:
-      - run: echo "Approved! Proceeding with deployment."
+      - run: echo "Approved!"
 
   terraform-apply:
     name: Terraform Apply
     runs-on: ubuntu-latest
     needs: approval
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    env:
-      ARM_CLIENT_ID:       ${{ secrets.ARM_CLIENT_ID }}
-      ARM_CLIENT_SECRET:   ${{ secrets.ARM_CLIENT_SECRET }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      ARM_TENANT_ID:       ${{ secrets.ARM_TENANT_ID }}
     steps:
       - uses: actions/checkout@v3
+      - uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.ARM_CLIENT_ID }}","clientSecret":"${{ secrets.ARM_CLIENT_SECRET }}","subscriptionId":"${{ secrets.ARM_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.ARM_TENANT_ID }}"}'
       - uses: opentofu/setup-opentofu@v1
         with:
           tofu_version: "1.9.0"
@@ -76,9 +68,5 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: tfplan
-      - run: |
-          tofu apply \
-            -var="student_name=JibrelAbubakrJibrel" \
-            -var="docker_image=jibreel3932/cloudscale-app:latest" \
-            -auto-approve
+      - run: tofu apply -var="student_name=JibrelAbubakrJibrel" -var="docker_image=jibreel3932/cloudscale-app:latest" -auto-approve
       - run: tofu output
